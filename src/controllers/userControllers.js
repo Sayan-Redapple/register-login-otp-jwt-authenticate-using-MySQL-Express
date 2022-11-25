@@ -164,13 +164,16 @@ let otpLogin = async (req, res) => {
           { type: dataAPI.QueryTypes.SELECT }
         );
         const token = await tokenLib.generateToken(req.body.mobile_no);
+        const email = await tokenLib.verifyClaimWithoutSecret(token);
+
+        let insertData = await dataAPI.query(`INSERT INTO tbl_login_details (mobile_no, token_generated) VALUES("${req.body.mobile_no}", "${token}")`)
         // console.log(getData)
 
         dataFetch = getData[0]
 
         return res.status(200).send({
           ...dataFetch,
-          message: "Logged in!",
+          message: "Logged IN! Welcome !!",
           token: token,
         });
       } else {
