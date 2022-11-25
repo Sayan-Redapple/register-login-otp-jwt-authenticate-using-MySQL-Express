@@ -11,6 +11,8 @@ let setRouter = (app) => {
     app.post(`${baseUrl}/generatedOTP`,userController.generatedOTP);
 
     app.post(`${baseUrl}/otpLogin`,userController.otpLogin);
+
+    app.post(`${baseUrl}/loginAllDetails`,userController.loginAllDetails);
 }
 
 

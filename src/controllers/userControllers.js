@@ -3,8 +3,10 @@ const response = require("../libs/responseLib");
 const tokenLib = require("../libs/tokenLib");
 const jwt = require("jsonwebtoken");
 
+
 let register = async (req, res) => {
   try {
+
     let { dataAPI } = require("../../www/database/db");
     if (
       !req.body.full_name ||
@@ -27,13 +29,7 @@ let register = async (req, res) => {
 
       let createUser = await dataAPI.query(
         `INSERT INTO tbl_register_details (full_name, mobile_no, email_id, password) VALUES ("${req.body.full_name}", "${req.body.mobile_no}", "${req.body.email_id}", "${hash}")`
-      );
-
-      let pullData = await dataAPI.query(
-        `SELECT full_name, mobile_no, email_id FROM tbl_register_details WHERE mobile_no = "${req.body.mobile_no}"`,
-        { type: dataAPI.QueryTypes.SELECT }
-      );
-
+      );let { dataAPI } = require("../../www/database/db");
       pullData1 = pullData[0];
 
       res.status(412).send({
@@ -51,8 +47,8 @@ let register = async (req, res) => {
 
 let login = async (req, res) => {
   try {
-    let { dataAPI } = require("../../www/database/db");
 
+    let { dataAPI } = require("../../www/database/db");
     if (!req.body.mobile_no || !req.body.password) {
       res.status(412).send("Some Feild Missing");
     }
@@ -94,6 +90,7 @@ function generateOTP() {
 
 let generatedOTP = async (req, res) => {
   try {
+
     let { dataAPI } = require("../../www/database/db");
     if (!req.body.mobile_no) {
       res.status(412).send("Please Provide the Mobile Number");
@@ -140,8 +137,9 @@ let generatedOTP = async (req, res) => {
 
 let otpLogin = async (req, res) => {
   try {
+
     let { dataAPI } = require("../../www/database/db");
-    if ((!req.body.mobile_no || !req.body.otp)) {
+    if (!req.body.mobile_no || !req.body.otp) {
       res.status(412).send("Some Feild Missing");
     }
 
@@ -166,16 +164,18 @@ let otpLogin = async (req, res) => {
         const token = await tokenLib.generateToken(req.body.mobile_no);
         const email = await tokenLib.verifyClaimWithoutSecret(token);
 
-        let insertData = await dataAPI.query(`INSERT INTO tbl_login_details (mobile_no, token_generated) VALUES("${req.body.mobile_no}", "${token}")`)
+        let insertData = await dataAPI.query(
+          `INSERT INTO tbl_login_details (mobile_no, token_generated) VALUES("${req.body.mobile_no}", "${token}")`
+        );
         console.log(insertData);
 
-        dataFetch = getData[0]
+        dataFetch = getData[0];
 
         return res.status(200).send({
           ...dataFetch,
           message: "Logged IN! Welcome !!",
           token: token,
-          ...email
+          ...email,
         });
       } else {
         return res.status(401).send({
@@ -189,9 +189,27 @@ let otpLogin = async (req, res) => {
   }
 };
 
+let loginAllDetails = async (req, res) => {
+  try {
+    let { dataAPI } = require("../../www/database/db");
+
+    let allData = await dataAPI.query(
+      `SELECT mobile_no, login_time FROM tbl_login_details ORDER BY login_time ASC`,  {type: dataAPI.QueryTypes.SELECT }
+    );
+    res.status(412).send({
+      messgae: "Success",
+     data : allData,
+    });
+  } catch (err) {
+    let apiResponse = response.generate(true, `${err.message}`, null);
+    res.status(412).send(apiResponse);
+  }
+};
+
 module.exports = {
   register: register,
   login: login,
   generatedOTP: generatedOTP,
-  otpLogin : otpLogin
+  otpLogin: otpLogin,
+  loginAllDetails : loginAllDetails
 };
