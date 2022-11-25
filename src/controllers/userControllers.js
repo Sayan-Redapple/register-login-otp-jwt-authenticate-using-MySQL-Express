@@ -108,7 +108,7 @@ let generatedOTP = async (req, res) => {
         (mobile_no, otp, expire_date) VALUES("${req.body.mobile_no}", "${fetchOTP}", NOW() + INTERVAL 2 MINUTE)`
       );
 
-      // console.log(insertOTP);
+      console.log(insertOTP);
 
       let fetchData = await dataAPI.query(
         `SELECT expire_date FROM tbl_otp_details WHERE mobile_no = "${req.body.mobile_no}" `,
